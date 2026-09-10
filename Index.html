@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Lab — Primeiros Passos</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --fundo: #07111f;
+            --painel: #0d1a2b;
+            --painel-claro: #14243a;
+            --borda: #263852;
+            --texto: #f1f6ff;
+            --cinza: #95a8c0;
+            --verde: #38d6c;
+            --sucesso: #5de0a3;
+            --erro: #ff7185;
+            --amarelo: #ffb660;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--fundo);
+            color: var(--texto);
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        header span {
+            color: var(--verde);
+        }
+
+        .status-api {
+            color: var(--cinza);
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        .exercicios {
+            margin-bottom: 22px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .exercicio-botao {
+            padding: 13px;
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            color: var(--cinza);
+            background: var(--painel);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .exercicio-botao:hover {
+            border-color: var(--verde);
+        }
+
+        .exercicio-botao.ativo {
+            color: var(--fundo);
+            border-color: var(--verde);
+            background: var(--verde);
+        }
+
+        .exercicio-botao.concluido::after {
+            content: " ✓";
+        }
+
+        .conteudo {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+        }
+
+        .painel {
+            padding: 22px;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            background: var(--painel);
+        }
+
+        .numero {
+            color: var(--verde);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        h2 {
+            margin: 10px 0;
+            font-size: 30px;
+        }
+
+        .descricao {
+            color: var(--cinza);
+            line-height: 1.6;
+        }
+
+        .exemplos {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .exemplo {
+            padding: 14px;
+            border: 1px solid var(--borda);
+            border-radius: 9px;
+            background: var(--painel-claro);
+        }
+
+        .exemplo strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cinza);
+            font-size: 12px;
+        }
+
+        .exemplo code {
+            color: var(--amarelo);
+        }
+
+        details {
+            margin-top: 15px;
+            padding: 13px;
+            border: 1px solid var(--borda);
+            border-radius: 9px;
+            color: var(--cinza);
+        }
+
+        summary {
+            color: var(--texto);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .editor {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .arquivo {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--borda);
+            color: var(--verde);
+            font-family: monospace;
+        }
+
+        textarea {
+            width: 100%;
+            height: 410px;
+            padding: 18px;
+            border: none;
+            resize: vertical;
+            outline: none;
+            color: #dceaff;
+            background: #07131f;
+            font: 15px/1.6 Consolas, monospace;
+            tab-size: 4;
+        }
+
+        .entrada {
+            padding: 15px;
+            border-top: 1px solid var(--borda);
+        }
+
+        .entrada label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cinza);
+            font-size: 14px;
+        }
+
+        .entrada input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            outline: none;
+            color: var(--texto);
+            background: var(--fundo);
+            font-family: monospace;
+        }
+
+        .acoes {
+            padding: 0 15px 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .acao {
+            padding: 11px 18px;
+            border: 1px solid var(--borda);
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .executar {
+            color: var(--texto);
+            background: var(--painel-claro);
+        }
+
+        .verificar {
+            color: var(--fundo);
+            border-color: var(--verde);
+            background: var(--verde);
+        }
+
+        .acao:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        .terminal {
+            grid-column: 1 / -1;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .terminal-titulo {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--borda);
+            font-weight: bold;
+        }
+
+        #saida {
+            min-height: 150px;
+            max-height: 350px;
+            margin: 0;
+            padding: 18px;
+            overflow: auto;
+            color: #dceaff;
+            background: #050d17;
+            white-space: pre-wrap;
+            font: 14px/1.6 Consolas, monospace;
+        }
+
+        .sucesso {
+            color: var(--sucesso);
+        }
+
+        .erro {
+            color: var(--erro);
+        }
+
+        @media (max-width: 850px) {
+            .conteudo {
+                grid-template-columns: 1fr;
+            }
+
+            .exercicios {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .terminal {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .status-api {
+                display: none;
+            }
+
+            h2 {
+                font-size: 25px;
+            }
+
+            .exemplos {
+                grid-template-columns: 1fr;
+            }
+
+            .acoes {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1><span>C</span> Lab — Primeiros Passos</h1>
+    <div class="status-api">Compilador C online</div>
+</header>
+
+<main class="container">
+    <nav class="exercicios" id="listaExercicios"></nav>
+
+    <section class="conteudo">
+        <article class="painel">
+            <div class="numero" id="numeroExercicio"></div>
+            <h2 id="tituloExercicio"></h2>
+            <p class="descricao" id="descricaoExercicio"></p>
+
+            <div class="exemplos">
+                <div class="exemplo">
+                    <strong>ENTRADA</strong>
+                    <code id="exemploEntrada"></code>
+                </div>
+
+                <div class="exemplo">
+                    <strong>SAÍDA ESPERADA</strong>
+                    <code id="exemploSaida"></code>
+                </div>
+            </div>
+
+            <details>
+                <summary>Mostrar uma pista</summary>
+                <p id="pistaExercicio"></p>
+            </details>
+        </article>
+
+        <section class="painel editor">
+            <div class="arquivo">main.c</div>
+
+            <textarea
+                id="codigo"
+                spellcheck="false"
+                aria-label="Editor de código C"
+            ></textarea>
+
+            <div class="entrada">
+                <label for="entradaPrograma">
+                    Entrada do programa
+                </label>
+
+                <input
+                    id="entradaPrograma"
+                    type="text"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="acoes">
+                <button class="acao executar" id="botaoExecutar">
+                    ▶ Executar
+                </button>
+
+                <button class="acao verificar" id="botaoVerificar">
+                    Verificar solução
+                </button>
+            </div>
+        </section>
+
+        <section class="painel terminal">
+            <div class="terminal-titulo">Resultado</div>
+            <pre id="saida">Digite seu código e clique em Executar.</pre>
+        </section>
+    </section>
+</main>
+
+<script>
+    const API_JUDGE0 = "https://ce.judge0.com";
+
+    const exercicios = [
+        {
+            titulo: "Olá, programador!",
+            nomeBotao: "1. Primeira saída",
+
+            descricao:
+                "Complete o programa para mostrar exatamente a mensagem Ola, programador!",
+
+            entradaExemplo: "Nenhuma",
+            saidaExemplo: "Ola, programador!",
+
+            pista:
+                "Use printf dentro da função main. Não esqueça as aspas e o ponto e vírgula.",
+
+            entradaInicial: "",
+
+            codigoInicial:
+`#include <stdio.h>
+
+int main(void) {
+    // Mostre: Ola, programador!
+
+    return 0;
+}`,
+
+            testes: [
+                {
+                    entrada: "",
+                    esperado: "Ola, programador!"
+                }
+            ]
+        },
+
+        {
+            titulo: "Calcule o dobro",
+            nomeBotao: "2. Dobro",
+
+            descricao:
+                "Leia um número inteiro e mostre somente o dobro desse número.",
+
+            entradaExemplo: "7",
+            saidaExemplo: "14",
+
+            pista:
+                "Leia o número usando scanf e mostre numero * 2.",
+
+            entradaInicial: "7",
+
+            codigoInicial:
+`#include <stdio.h>
+
+int main(void) {
+    int numero;
+
+    // Leia o numero e mostre o dobro
+
+    return 0;
+}`,
+
+            testes: [
+                { entrada: "7", esperado: "14" },
+                { entrada: "-3", esperado: "-6" },
+                { entrada: "0", esperado: "0" }
+            ]
+        },
+
+        {
+            titulo: "Par ou ímpar",
+            nomeBotao: "3. Par ou ímpar",
+
+            descricao:
+                "Leia um número inteiro. Mostre PAR se ele for par ou IMPAR se for ímpar.",
+
+            entradaExemplo: "9",
+            saidaExemplo: "IMPAR",
+
+            pista:
+                "Se numero % 2 for igual a zero, o número é par.",
+
+            entradaInicial: "9",
+
+            codigoInicial:
+`#include <stdio.h>
+
+int main(void) {
+    int numero;
+
+    scanf("%d", &numero);
+
+    // Use if e else
+
+    return 0;
+}`,
+
+            testes: [
+                { entrada: "4", esperado: "PAR" },
+                { entrada: "9", esperado: "IMPAR" },
+                { entrada: "0", esperado: "PAR" }
+            ]
+        },
+
+        {
+            titulo: "Situação do aluno",
+            nomeBotao: "4. Média escolar",
+
+            descricao:
+                "Leia duas notas e calcule a média. Mostre APROVADO para média a partir de 7, RECUPERACAO para média a partir de 5 ou REPROVADO abaixo de 5.",
+
+            entradaExemplo: "7.0 8.0",
+            saidaExemplo: "APROVADO",
+
+            pista:
+                "Calcule a média e use if, else if e else.",
+
+            entradaInicial: "7.0 8.0",
+
+            codigoInicial:
+`#include <stdio.h>
+
+int main(void) {
+    float nota1, nota2, media;
+
+    scanf("%f %f", &nota1, &nota2);
+
+    media = (nota1 + nota2) / 2;
+
+    // Mostre a situacao do aluno
+
+    return 0;
+}`,
+
+            testes: [
+                {
+                    entrada: "7.0 8.0",
+                    esperado: "APROVADO"
+                },
+                {
+                    entrada: "5.0 6.0",
+                    esperado: "RECUPERACAO"
+                },
+                {
+                    entrada: "4.0 3.0",
+                    esperado: "REPROVADO"
+                }
+            ]
+        }
+    ];
+
+    let exercicioAtual = 0;
+    let linguagemC = null;
+
+    const codigosSalvos = {};
+    const concluidos = new Set();
+
+    const listaExercicios =
+        document.getElementById("listaExercicios");
+
+    const numeroExercicio =
+        document.getElementById("numeroExercicio");
+
+    const tituloExercicio =
+        document.getElementById("tituloExercicio");
+
+    const descricaoExercicio =
+        document.getElementById("descricaoExercicio");
+
+    const exemploEntrada =
+        document.getElementById("exemploEntrada");
+
+    const exemploSaida =
+        document.getElementById("exemploSaida");
+
+    const pistaExercicio =
+        document.getElementById("pistaExercicio");
+
+    const codigo =
+        document.getElementById("codigo");
+
+    const entradaPrograma =
+        document.getElementById("entradaPrograma");
+
+    const saida =
+        document.getElementById("saida");
+
+    const botaoExecutar =
+        document.getElementById("botaoExecutar");
+
+    const botaoVerificar =
+        document.getElementById("botaoVerificar");
+
+    function montarMenu() {
+        listaExercicios.innerHTML = "";
+
+        exercicios.forEach((exercicio, indice) => {
+            const botao = document.createElement("button");
+
+            botao.className = "exercicio-botao";
+            botao.textContent = exercicio.nomeBotao;
+
+            if (indice === exercicioAtual) {
+                botao.classList.add("ativo");
+            }
+
+            if (concluidos.has(indice)) {
+                botao.classList.add("concluido");
+            }
+
+            botao.onclick = () => abrirExercicio(indice);
+
+            listaExercicios.appendChild(botao);
+        });
+    }
+
+    function abrirExercicio(indice) {
+        codigosSalvos[exercicioAtual] = codigo.value;
+        exercicioAtual = indice;
+
+        const exercicio = exercicios[indice];
+
+        numeroExercicio.textContent =
+            `EXERCÍCIO ${indice + 1} DE ${exercicios.length}`;
+
+        tituloExercicio.textContent = exercicio.titulo;
+        descricaoExercicio.textContent = exercicio.descricao;
+        exemploEntrada.textContent = exercicio.entradaExemplo;
+        exemploSaida.textContent = exercicio.saidaExemplo;
+        pistaExercicio.textContent = exercicio.pista;
+
+        codigo.value =
+            codigosSalvos[indice] ?? exercicio.codigoInicial;
+
+        entradaPrograma.value = exercicio.entradaInicial;
+
+        saida.textContent =
+            "Digite seu código e clique em Executar.";
+
+        saida.className = "";
+
+        montarMenu();
+    }
+
+    function bloquearBotoes(bloquear) {
+        botaoExecutar.disabled = bloquear;
+        botaoVerificar.disabled = bloquear;
+    }
+
+    function normalizar(texto) {
+        return (texto || "")
+            .replace(/\r\n/g, "\n")
+            .trim();
+    }
+
+    function converterParaBase64(texto) {
+        const bytes = new TextEncoder().encode(texto);
+        let binario = "";
+
+        bytes.forEach(byte => {
+            binario += String.fromCharCode(byte);
+        });
+
+        return btoa(binario);
+    }
+
+    function converterDeBase64(texto) {
+        if (!texto) {
+            return "";
+        }
+
+        const binario = atob(texto);
+
+        const bytes = Uint8Array.from(
+            binario,
+            caractere => caractere.charCodeAt(0)
+        );
+
+        return new TextDecoder().decode(bytes);
+    }
+
+    async function descobrirCompiladorC() {
+        if (linguagemC !== null) {
+            return linguagemC;
+        }
+
+        const resposta =
+            await fetch(`${API_JUDGE0}/languages`);
+
+        if (!resposta.ok) {
+            throw new Error(
+                "Não foi possível acessar o compilador."
+            );
+        }
+
+        const linguagens = await resposta.json();
+
+        const compilador = linguagens.find(
+            linguagem =>
+                linguagem.name.startsWith("C (GCC")
+        );
+
+        if (!compilador) {
+            throw new Error(
+                "Nenhum compilador C foi encontrado."
+            );
+        }
+
+        linguagemC = compilador.id;
+
+        return linguagemC;
+    }
+
+    async function enviarCodigo(codigoFonte, entrada) {
+        const idLinguagem =
+            await descobrirCompiladorC();
+
+        const resposta = await fetch(
+            `${API_JUDGE0}/submissions?base64_encoded=true&wait=false`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    source_code:
+                        converterParaBase64(codigoFonte),
+
+                    stdin:
+                        converterParaBase64(entrada),
+
+                    language_id: idLinguagem,
+                    cpu_time_limit: 2,
+                    wall_time_limit: 5,
+                    memory_limit: 128000
+                })
+            }
+        );
+
+        const resultado = await resposta.json();
+
+        if (!resposta.ok || !resultado.token) {
+            throw new Error(
+                resultado.error ||
+                "Não foi possível enviar o código."
+            );
+        }
+
+        return resultado.token;
+    }
+
+    async function aguardarResultado(token) {
+        for (let tentativa = 0;
+             tentativa < 25;
+             tentativa++) {
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 700)
+            );
+
+            const resposta = await fetch(
+                `${API_JUDGE0}/submissions/${token}` +
+                "?base64_encoded=true" +
+                "&fields=stdout,stderr,compile_output," +
+                "message,status,time,memory"
+            );
+
+            const resultado = await resposta.json();
+
+            if (
+                resultado.status &&
+                ![1, 2].includes(resultado.status.id)
+            ) {
+                resultado.stdout =
+                    converterDeBase64(resultado.stdout);
+
+                resultado.stderr =
+                    converterDeBase64(resultado.stderr);
+
+                resultado.compile_output =
+                    converterDeBase64(
+                        resultado.compile_output
+                    );
+
+                resultado.message =
+                    converterDeBase64(resultado.message);
+
+                return resultado;
+            }
+        }
+
+        throw new Error(
+            "A execução demorou mais do que o esperado."
+        );
+    }
+
+    async function compilar(codigoFonte, entrada) {
+        if (!codigoFonte.trim()) {
+            throw new Error(
+                "Digite algum código antes de executar."
+            );
+        }
+
+        const token =
+            await enviarCodigo(codigoFonte, entrada);
+
+        return aguardarResultado(token);
+    }
+
+    function mostrarErro(resultado) {
+        if (resultado.compile_output) {
+            return (
+                "ERRO DE COMPILAÇÃO:\n\n" +
+                resultado.compile_output
+            );
+        }
+
+        if (resultado.stderr) {
+            return (
+                "ERRO DURANTE A EXECUÇÃO:\n\n" +
+                resultado.stderr
+            );
+        }
+
+        if (resultado.message) {
+            return resultado.message;
+        }
+
+        return (
+            "Execução encerrada: " +
+            resultado.status.description
+        );
+    }
+
+    async function executarCodigo() {
+        bloquearBotoes(true);
+
+        saida.className = "";
+        saida.textContent = "Compilando...";
+
+        
