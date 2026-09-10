@@ -17,7 +17,7 @@
             --borda: #263852;
             --texto: #f1f6ff;
             --cinza: #95a8c0;
-            --verde: #38d6c;
+            --verde: #38d6c8;
             --sucesso: #5de0a3;
             --erro: #ff7185;
             --amarelo: #ffb660;
@@ -829,5 +829,138 @@ int main(void) {
 
         saida.className = "";
         saida.textContent = "Compilando...";
+
+                try {
+            const resultado = await compilar(
+                codigo.value,
+                entradaPrograma.value
+            );
+
+            if (resultado.status.id === 3) {
+                saida.textContent =
+                    resultado.stdout ||
+                    "(O programa não mostrou nenhuma saída.)";
+            } else {
+                saida.className = "erro";
+                saida.textContent = mostrarErro(resultado);
+            }
+        } catch (erro) {
+            saida.className = "erro";
+
+            saida.textContent =
+                "Não foi possível executar o programa.\n\n" +
+                erro.message;
+        } finally {
+            bloquearBotoes(false);
+        }
+    }
+
+    async function verificarSolucao() {
+        bloquearBotoes(true);
+
+        const exercicio = exercicios[exercicioAtual];
+
+        saida.className = "";
+        saida.textContent =
+            `Executando ${exercicio.testes.length} teste(s)...`;
+
+        try {
+            for (
+                let indice = 0;
+                indice < exercicio.testes.length;
+                indice++
+            ) {
+                const teste = exercicio.testes[indice];
+
+                saida.textContent =
+                    `Executando teste ${indice + 1}...`;
+
+                const resultado = await compilar(
+                    codigo.value,
+                    teste.entrada
+                );
+
+                if (resultado.status.id !== 3) {
+                    saida.className = "erro";
+                    saida.textContent = mostrarErro(resultado);
+                    return;
+                }
+
+                const recebido =
+                    normalizar(resultado.stdout);
+
+                const esperado =
+                    normalizar(teste.esperado);
+
+                if (recebido !== esperado) {
+                    saida.className = "erro";
+
+                    saida.textContent =
+`O teste ${indice + 1} não passou.
+
+Entrada utilizada:
+${teste.entrada || "(nenhuma)"}
+
+Resultado esperado:
+${esperado}
+
+Resultado recebido:
+${recebido || "(nenhuma saída)"}`;
+
+                    return;
+                }
+            }
+
+            concluidos.add(exercicioAtual);
+            montarMenu();
+
+            saida.className = "sucesso";
+
+            saida.textContent =
+`✓ Todos os testes passaram!
+
+Exercício concluído com sucesso.`;
+
+        } catch (erro) {
+            saida.className = "erro";
+
+            saida.textContent =
+                "Não foi possível verificar a solução.\n\n" +
+                erro.message;
+        } finally {
+            bloquearBotoes(false);
+        }
+    }
+
+    codigo.addEventListener("keydown", evento => {
+        if (evento.key === "Tab") {
+            evento.preventDefault();
+
+            const inicio = codigo.selectionStart;
+            const fim = codigo.selectionEnd;
+
+            codigo.setRangeText(
+                "    ",
+                inicio,
+                fim,
+                "end"
+            );
+        }
+    });
+
+    botaoExecutar.addEventListener(
+        "click",
+        executarCodigo
+    );
+
+    botaoVerificar.addEventListener(
+        "click",
+        verificarSolucao
+    );
+
+    abrirExercicio(0);
+</script>
+</body>
+</html>
 
         
