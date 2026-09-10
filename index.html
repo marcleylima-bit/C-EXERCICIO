@@ -26,8 +26,8 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: var(--fundo);
             color: var(--texto);
+            background: var(--fundo);
             font-family: Arial, sans-serif;
         }
 
@@ -44,7 +44,7 @@
             font-size: 22px;
         }
 
-        header span {
+        header h1 span {
             color: var(--verde);
         }
 
@@ -54,6 +54,7 @@
         }
 
         .container {
+            width: 100%;
             max-width: 1400px;
             margin: auto;
             padding: 25px;
@@ -254,22 +255,23 @@
         }
 
         #saida {
-            min-height: 150px;
-            max-height: 350px;
+            min-height: 160px;
+            max-height: 400px;
             margin: 0;
             padding: 18px;
             overflow: auto;
             color: #dceaff;
             background: #050d17;
             white-space: pre-wrap;
+            overflow-wrap: anywhere;
             font: 14px/1.6 Consolas, monospace;
         }
 
-        .sucesso {
+        #saida.sucesso {
             color: var(--sucesso);
         }
 
-        .erro {
+        #saida.erro {
             color: var(--erro);
         }
 
@@ -312,6 +314,11 @@
                 display: grid;
                 grid-template-columns: 1fr;
             }
+
+            textarea {
+                height: 370px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -328,8 +335,13 @@
     <section class="conteudo">
         <article class="painel">
             <div class="numero" id="numeroExercicio"></div>
+
             <h2 id="tituloExercicio"></h2>
-            <p class="descricao" id="descricaoExercicio"></p>
+
+            <p
+                class="descricao"
+                id="descricaoExercicio"
+            ></p>
 
             <div class="exemplos">
                 <div class="exemplo">
@@ -355,6 +367,8 @@
             <textarea
                 id="codigo"
                 spellcheck="false"
+                autocomplete="off"
+                autocapitalize="off"
                 aria-label="Editor de código C"
             ></textarea>
 
@@ -371,18 +385,27 @@
             </div>
 
             <div class="acoes">
-                <button class="acao executar" id="botaoExecutar">
+                <button
+                    class="acao executar"
+                    id="botaoExecutar"
+                >
                     ▶ Executar
                 </button>
 
-                <button class="acao verificar" id="botaoVerificar">
+                <button
+                    class="acao verificar"
+                    id="botaoVerificar"
+                >
                     Verificar solução
                 </button>
             </div>
         </section>
 
         <section class="painel terminal">
-            <div class="terminal-titulo">Resultado</div>
+            <div class="terminal-titulo">
+                Resultado
+            </div>
+
             <pre id="saida">Digite seu código e clique em Executar.</pre>
         </section>
     </section>
@@ -397,7 +420,7 @@
             nomeBotao: "1. Primeira saída",
 
             descricao:
-                "Complete o programa para mostrar exatamente a mensagem Ola, programador!",
+                "Complete o programa para mostrar exatamente a mensagem: Ola, programador!",
 
             entradaExemplo: "Nenhuma",
             saidaExemplo: "Ola, programador!",
@@ -435,7 +458,7 @@ int main(void) {
             saidaExemplo: "14",
 
             pista:
-                "Leia o número usando scanf e mostre numero * 2.",
+                "Crie uma variável int, leia usando scanf com %d e mostre numero * 2 usando printf.",
 
             entradaInicial: "7",
 
@@ -451,9 +474,18 @@ int main(void) {
 }`,
 
             testes: [
-                { entrada: "7", esperado: "14" },
-                { entrada: "-3", esperado: "-6" },
-                { entrada: "0", esperado: "0" }
+                {
+                    entrada: "7",
+                    esperado: "14"
+                },
+                {
+                    entrada: "-3",
+                    esperado: "-6"
+                },
+                {
+                    entrada: "0",
+                    esperado: "0"
+                }
             ]
         },
 
@@ -468,7 +500,7 @@ int main(void) {
             saidaExemplo: "IMPAR",
 
             pista:
-                "Se numero % 2 for igual a zero, o número é par.",
+                "O operador % encontra o resto da divisão. Se numero % 2 for igual a zero, o número é par.",
 
             entradaInicial: "9",
 
@@ -486,9 +518,18 @@ int main(void) {
 }`,
 
             testes: [
-                { entrada: "4", esperado: "PAR" },
-                { entrada: "9", esperado: "IMPAR" },
-                { entrada: "0", esperado: "PAR" }
+                {
+                    entrada: "4",
+                    esperado: "PAR"
+                },
+                {
+                    entrada: "9",
+                    esperado: "IMPAR"
+                },
+                {
+                    entrada: "0",
+                    esperado: "PAR"
+                }
             ]
         },
 
@@ -503,7 +544,7 @@ int main(void) {
             saidaExemplo: "APROVADO",
 
             pista:
-                "Calcule a média e use if, else if e else.",
+                "Calcule (nota1 + nota2) / 2. Depois use if, else if e else.",
 
             entradaInicial: "7.0 8.0",
 
@@ -541,6 +582,7 @@ int main(void) {
 
     let exercicioAtual = 0;
     let linguagemC = null;
+    let siteIniciado = false;
 
     const codigosSalvos = {};
     const concluidos = new Set();
@@ -585,8 +627,10 @@ int main(void) {
         listaExercicios.innerHTML = "";
 
         exercicios.forEach((exercicio, indice) => {
-            const botao = document.createElement("button");
+            const botao =
+                document.createElement("button");
 
+            botao.type = "button";
             botao.className = "exercicio-botao";
             botao.textContent = exercicio.nomeBotao;
 
@@ -598,14 +642,20 @@ int main(void) {
                 botao.classList.add("concluido");
             }
 
-            botao.onclick = () => abrirExercicio(indice);
+            botao.addEventListener("click", () => {
+                abrirExercicio(indice);
+            });
 
             listaExercicios.appendChild(botao);
         });
     }
 
     function abrirExercicio(indice) {
-        codigosSalvos[exercicioAtual] = codigo.value;
+        if (siteIniciado) {
+            codigosSalvos[exercicioAtual] =
+                codigo.value;
+        }
+
         exercicioAtual = indice;
 
         const exercicio = exercicios[indice];
@@ -613,21 +663,34 @@ int main(void) {
         numeroExercicio.textContent =
             `EXERCÍCIO ${indice + 1} DE ${exercicios.length}`;
 
-        tituloExercicio.textContent = exercicio.titulo;
-        descricaoExercicio.textContent = exercicio.descricao;
-        exemploEntrada.textContent = exercicio.entradaExemplo;
-        exemploSaida.textContent = exercicio.saidaExemplo;
-        pistaExercicio.textContent = exercicio.pista;
+        tituloExercicio.textContent =
+            exercicio.titulo;
+
+        descricaoExercicio.textContent =
+            exercicio.descricao;
+
+        exemploEntrada.textContent =
+            exercicio.entradaExemplo;
+
+        exemploSaida.textContent =
+            exercicio.saidaExemplo;
+
+        pistaExercicio.textContent =
+            exercicio.pista;
 
         codigo.value =
-            codigosSalvos[indice] ?? exercicio.codigoInicial;
+            codigosSalvos[indice] ??
+            exercicio.codigoInicial;
 
-        entradaPrograma.value = exercicio.entradaInicial;
+        entradaPrograma.value =
+            exercicio.entradaInicial;
 
         saida.textContent =
             "Digite seu código e clique em Executar.";
 
         saida.className = "";
+
+        siteIniciado = true;
 
         montarMenu();
     }
@@ -644,11 +707,14 @@ int main(void) {
     }
 
     function converterParaBase64(texto) {
-        const bytes = new TextEncoder().encode(texto);
+        const bytes =
+            new TextEncoder().encode(texto);
+
         let binario = "";
 
         bytes.forEach(byte => {
-            binario += String.fromCharCode(byte);
+            binario +=
+                String.fromCharCode(byte);
         });
 
         return btoa(binario);
@@ -679,11 +745,12 @@ int main(void) {
 
         if (!resposta.ok) {
             throw new Error(
-                "Não foi possível acessar o compilador."
+                "O serviço de compilação não respondeu."
             );
         }
 
-        const linguagens = await resposta.json();
+        const linguagens =
+            await resposta.json();
 
         const compilador = linguagens.find(
             linguagem =>
@@ -701,7 +768,10 @@ int main(void) {
         return linguagemC;
     }
 
-    async function enviarCodigo(codigoFonte, entrada) {
+    async function enviarCodigo(
+        codigoFonte,
+        entrada
+    ) {
         const idLinguagem =
             await descobrirCompiladorC();
 
@@ -716,10 +786,14 @@ int main(void) {
 
                 body: JSON.stringify({
                     source_code:
-                        converterParaBase64(codigoFonte),
+                        converterParaBase64(
+                            codigoFonte
+                        ),
 
                     stdin:
-                        converterParaBase64(entrada),
+                        converterParaBase64(
+                            entrada
+                        ),
 
                     language_id: idLinguagem,
                     cpu_time_limit: 2,
@@ -729,7 +803,8 @@ int main(void) {
             }
         );
 
-        const resultado = await resposta.json();
+        const resultado =
+            await resposta.json();
 
         if (!resposta.ok || !resultado.token) {
             throw new Error(
@@ -742,32 +817,46 @@ int main(void) {
     }
 
     async function aguardarResultado(token) {
-        for (let tentativa = 0;
-             tentativa < 25;
-             tentativa++) {
-
-            await new Promise(resolve =>
-                setTimeout(resolve, 700)
-            );
+        for (
+            let tentativa = 0;
+            tentativa < 25;
+            tentativa++
+        ) {
+            await new Promise(resolve => {
+                setTimeout(resolve, 700);
+            });
 
             const resposta = await fetch(
                 `${API_JUDGE0}/submissions/${token}` +
                 "?base64_encoded=true" +
-                "&fields=stdout,stderr,compile_output," +
-                "message,status,time,memory"
+                "&fields=stdout,stderr," +
+                "compile_output,message,status,time,memory"
             );
 
-            const resultado = await resposta.json();
+            if (!resposta.ok) {
+                throw new Error(
+                    "Não foi possível consultar o resultado."
+                );
+            }
+
+            const resultado =
+                await resposta.json();
 
             if (
                 resultado.status &&
-                ![1, 2].includes(resultado.status.id)
+                ![1, 2].includes(
+                    resultado.status.id
+                )
             ) {
                 resultado.stdout =
-                    converterDeBase64(resultado.stdout);
+                    converterDeBase64(
+                        resultado.stdout
+                    );
 
                 resultado.stderr =
-                    converterDeBase64(resultado.stderr);
+                    converterDeBase64(
+                        resultado.stderr
+                    );
 
                 resultado.compile_output =
                     converterDeBase64(
@@ -775,7 +864,9 @@ int main(void) {
                     );
 
                 resultado.message =
-                    converterDeBase64(resultado.message);
+                    converterDeBase64(
+                        resultado.message
+                    );
 
                 return resultado;
             }
@@ -786,7 +877,10 @@ int main(void) {
         );
     }
 
-    async function compilar(codigoFonte, entrada) {
+    async function compilar(
+        codigoFonte,
+        entrada
+    ) {
         if (!codigoFonte.trim()) {
             throw new Error(
                 "Digite algum código antes de executar."
@@ -794,33 +888,165 @@ int main(void) {
         }
 
         const token =
-            await enviarCodigo(codigoFonte, entrada);
+            await enviarCodigo(
+                codigoFonte,
+                entrada
+            );
 
         return aguardarResultado(token);
+    }
+
+    function traduzirErroCompilador(texto) {
+        const localEncontrado =
+            texto.match(/main\.c:(\d+):(\d+)/);
+
+        const local = localEncontrado
+            ? `Linha ${localEncontrado[1]}, coluna ${localEncontrado[2]}:\n\n`
+            : "";
+
+        if (texto.includes("expected ';'")) {
+            return local +
+                "Parece que faltou um ponto e vírgula (;). Confira o final da linha indicada.";
+        }
+
+        if (
+            texto.includes(
+                'missing terminating " character'
+            )
+        ) {
+            return local +
+                "Faltou fechar as aspas de um texto. Toda mensagem iniciada com aspas precisa terminar com outras aspas.";
+        }
+
+        if (texto.includes("undeclared")) {
+            return local +
+                "Você utilizou uma variável ou função que não foi declarada. Confira se o nome foi escrito corretamente. A linguagem C diferencia letras maiúsculas e minúsculas.";
+        }
+
+        if (
+            texto.includes(
+                "implicit declaration of function"
+            )
+        ) {
+            return local +
+                "O programa não reconheceu uma função utilizada. Confira o nome da função e a biblioteca. printf e scanf precisam de #include <stdio.h>.";
+        }
+
+        if (texto.includes("expected ')'")) {
+            return local +
+                "Faltou fechar um parêntese ou existe algo incorreto antes dele.";
+        }
+
+        if (texto.includes("expected '}'")) {
+            return local +
+                "Faltou fechar uma chave }. Confira os blocos da função, do if e do else.";
+        }
+
+        if (
+            texto.includes(
+                "expected declaration or statement at end of input"
+            )
+        ) {
+            return local +
+                "O código terminou antes de alguma instrução ser fechada. Confira os parênteses e as chaves.";
+        }
+
+        if (texto.includes("expected expression")) {
+            return local +
+                "O compilador esperava encontrar um valor, uma variável ou um cálculo nessa parte.";
+        }
+
+        if (texto.includes("too few arguments")) {
+            return local +
+                "Faltam informações dentro da função utilizada.";
+        }
+
+        if (texto.includes("too many arguments")) {
+            return local +
+                "Foram colocadas informações demais dentro da função.";
+        }
+
+        if (texto.includes("unknown type name")) {
+            return local +
+                "O tipo da variável não foi reconhecido. Confira se escreveu corretamente int, float ou char.";
+        }
+
+        if (texto.includes("redefinition of")) {
+            return local +
+                "Uma variável ou função foi declarada duas vezes com o mesmo nome.";
+        }
+
+        let traducao = texto
+            .replaceAll(
+                "fatal error:",
+                "erro grave:"
+            )
+            .replaceAll(
+                "error:",
+                "erro:"
+            )
+            .replaceAll(
+                "warning:",
+                "aviso:"
+            )
+            .replaceAll(
+                "note:",
+                "observação:"
+            )
+            .replaceAll(
+                "In function",
+                "Na função"
+            )
+            .replaceAll(
+                "expected",
+                "era esperado"
+            )
+            .replaceAll(
+                "before",
+                "antes de"
+            )
+            .replaceAll(
+                "undeclared",
+                "não declarado"
+            );
+
+        return (
+            "O compilador encontrou um problema:\n\n" +
+            traducao +
+            "\n\nConfira a linha indicada e procure sinais como ;, (), {}, aspas e nomes de variáveis."
+        );
     }
 
     function mostrarErro(resultado) {
         if (resultado.compile_output) {
             return (
-                "ERRO DE COMPILAÇÃO:\n\n" +
-                resultado.compile_output
+                "ERRO DE COMPILAÇÃO\n\n" +
+                traduzirErroCompilador(
+                    resultado.compile_output
+                )
             );
         }
 
         if (resultado.stderr) {
             return (
-                "ERRO DURANTE A EXECUÇÃO:\n\n" +
-                resultado.stderr
+                "ERRO DURANTE A EXECUÇÃO\n\n" +
+                traduzirErroCompilador(
+                    resultado.stderr
+                )
             );
         }
 
         if (resultado.message) {
-            return resultado.message;
+            return (
+                "O programa não conseguiu terminar.\n\n" +
+                traduzirErroCompilador(
+                    resultado.message
+                )
+            );
         }
 
         return (
-            "Execução encerrada: " +
-            resultado.status.description
+            "O programa foi encerrado antes de terminar."
         );
     }
 
@@ -830,7 +1056,7 @@ int main(void) {
         saida.className = "";
         saida.textContent = "Compilando...";
 
-                try {
+        try {
             const resultado = await compilar(
                 codigo.value,
                 entradaPrograma.value
@@ -842,7 +1068,8 @@ int main(void) {
                     "(O programa não mostrou nenhuma saída.)";
             } else {
                 saida.className = "erro";
-                saida.textContent = mostrarErro(resultado);
+                saida.textContent =
+                    mostrarErro(resultado);
             }
         } catch (erro) {
             saida.className = "erro";
@@ -858,9 +1085,11 @@ int main(void) {
     async function verificarSolucao() {
         bloquearBotoes(true);
 
-        const exercicio = exercicios[exercicioAtual];
+        const exercicio =
+            exercicios[exercicioAtual];
 
         saida.className = "";
+
         saida.textContent =
             `Executando ${exercicio.testes.length} teste(s)...`;
 
@@ -870,27 +1099,34 @@ int main(void) {
                 indice < exercicio.testes.length;
                 indice++
             ) {
-                const teste = exercicio.testes[indice];
+                const teste =
+                    exercicio.testes[indice];
 
                 saida.textContent =
-                    `Executando teste ${indice + 1}...`;
+                    `Executando teste ${indice + 1} de ${exercicio.testes.length}...`;
 
-                const resultado = await compilar(
-                    codigo.value,
-                    teste.entrada
-                );
+                const resultado =
+                    await compilar(
+                        codigo.value,
+                        teste.entrada
+                    );
 
                 if (resultado.status.id !== 3) {
                     saida.className = "erro";
-                    saida.textContent = mostrarErro(resultado);
+                    saida.textContent =
+                        mostrarErro(resultado);
                     return;
                 }
 
                 const recebido =
-                    normalizar(resultado.stdout);
+                    normalizar(
+                        resultado.stdout
+                    );
 
                 const esperado =
-                    normalizar(teste.esperado);
+                    normalizar(
+                        teste.esperado
+                    );
 
                 if (recebido !== esperado) {
                     saida.className = "erro";
@@ -905,7 +1141,9 @@ Resultado esperado:
 ${esperado}
 
 Resultado recebido:
-${recebido || "(nenhuma saída)"}`;
+${recebido || "(nenhuma saída)"}
+
+Confira os textos, espaços, cálculos e condições.`;
 
                     return;
                 }
@@ -932,21 +1170,27 @@ Exercício concluído com sucesso.`;
         }
     }
 
-    codigo.addEventListener("keydown", evento => {
-        if (evento.key === "Tab") {
-            evento.preventDefault();
+    codigo.addEventListener(
+        "keydown",
+        evento => {
+            if (evento.key === "Tab") {
+                evento.preventDefault();
 
-            const inicio = codigo.selectionStart;
-            const fim = codigo.selectionEnd;
+                const inicio =
+                    codigo.selectionStart;
 
-            codigo.setRangeText(
-                "    ",
-                inicio,
-                fim,
-                "end"
-            );
+                const fim =
+                    codigo.selectionEnd;
+
+                codigo.setRangeText(
+                    "    ",
+                    inicio,
+                    fim,
+                    "end"
+                );
+            }
         }
-    });
+    );
 
     botaoExecutar.addEventListener(
         "click",
@@ -962,5 +1206,3 @@ Exercício concluído com sucesso.`;
 </script>
 </body>
 </html>
-
-        
