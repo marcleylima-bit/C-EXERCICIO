@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>C Lab — Primeiros Passos</title>
 
     <style>
@@ -117,36 +118,21 @@
 
         .descricao {
             color: var(--cinza);
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        .exemplos {
+        .aviso {
             margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .exemplo {
             padding: 14px;
-            border: 1px solid var(--borda);
-            border-radius: 9px;
-            background: var(--painel-claro);
-        }
-
-        .exemplo strong {
-            display: block;
-            margin-bottom: 8px;
+            border-left: 3px solid var(--amarelo);
+            border-radius: 6px;
             color: var(--cinza);
-            font-size: 12px;
-        }
-
-        .exemplo code {
-            color: var(--amarelo);
+            background: var(--painel-claro);
+            line-height: 1.5;
         }
 
         details {
-            margin-top: 15px;
+            margin-top: 12px;
             padding: 13px;
             border: 1px solid var(--borda);
             border-radius: 9px;
@@ -159,6 +145,11 @@
             font-weight: bold;
         }
 
+        details p {
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
         .editor {
             padding: 0;
             overflow: hidden;
@@ -166,9 +157,19 @@
 
         .arquivo {
             padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border-bottom: 1px solid var(--borda);
             color: var(--verde);
             font-family: monospace;
+        }
+
+        .limpar {
+            border: none;
+            color: var(--cinza);
+            background: transparent;
+            cursor: pointer;
         }
 
         textarea {
@@ -182,6 +183,10 @@
             background: #07131f;
             font: 15px/1.6 Consolas, monospace;
             tab-size: 4;
+        }
+
+        textarea::placeholder {
+            color: #536780;
         }
 
         .entrada {
@@ -205,6 +210,13 @@
             color: var(--texto);
             background: var(--fundo);
             font-family: monospace;
+        }
+
+        .entrada small {
+            display: block;
+            margin-top: 8px;
+            color: var(--cinza);
+            line-height: 1.4;
         }
 
         .acoes {
@@ -306,10 +318,6 @@
                 font-size: 25px;
             }
 
-            .exemplos {
-                grid-template-columns: 1fr;
-            }
-
             .acoes {
                 display: grid;
                 grid-template-columns: 1fr;
@@ -330,11 +338,17 @@
 </header>
 
 <main class="container">
-    <nav class="exercicios" id="listaExercicios"></nav>
+    <nav
+        class="exercicios"
+        id="listaExercicios"
+    ></nav>
 
     <section class="conteudo">
         <article class="painel">
-            <div class="numero" id="numeroExercicio"></div>
+            <div
+                class="numero"
+                id="numeroExercicio"
+            ></div>
 
             <h2 id="tituloExercicio"></h2>
 
@@ -343,51 +357,67 @@
                 id="descricaoExercicio"
             ></p>
 
-            <div class="exemplos">
-                <div class="exemplo">
-                    <strong>ENTRADA</strong>
-                    <code id="exemploEntrada"></code>
-                </div>
-
-                <div class="exemplo">
-                    <strong>SAÍDA ESPERADA</strong>
-                    <code id="exemploSaida"></code>
-                </div>
+            <div class="aviso">
+                Os valores usados na verificação estão escondidos.
+                O programa precisa funcionar em diferentes situações.
             </div>
 
             <details>
-                <summary>Mostrar uma pista</summary>
-                <p id="pistaExercicio"></p>
+                <summary>Pista 1</summary>
+                <p id="pista1"></p>
+            </details>
+
+            <details>
+                <summary>Ainda estou com dificuldade</summary>
+                <p id="pista2"></p>
             </details>
         </article>
 
         <section class="painel editor">
-            <div class="arquivo">main.c</div>
+            <div class="arquivo">
+                <span>main.c</span>
+
+                <button
+                    class="limpar"
+                    id="botaoLimpar"
+                    type="button"
+                >
+                    Reiniciar
+                </button>
+            </div>
 
             <textarea
                 id="codigo"
                 spellcheck="false"
                 autocomplete="off"
                 autocapitalize="off"
+                placeholder="// Escreva seu programa em C aqui"
                 aria-label="Editor de código C"
             ></textarea>
 
             <div class="entrada">
                 <label for="entradaPrograma">
-                    Entrada do programa
+                    Entrada para testar seu programa
                 </label>
 
                 <input
                     id="entradaPrograma"
                     type="text"
                     autocomplete="off"
+                    placeholder="Digite aqui somente quando seu programa precisar receber dados"
                 >
+
+                <small>
+                    Esse valor serve apenas para o botão Executar.
+                    A verificação utilizará valores diferentes.
+                </small>
             </div>
 
             <div class="acoes">
                 <button
                     class="acao executar"
                     id="botaoExecutar"
+                    type="button"
                 >
                     ▶ Executar
                 </button>
@@ -395,6 +425,7 @@
                 <button
                     class="acao verificar"
                     id="botaoVerificar"
+                    type="button"
                 >
                     Verificar solução
                 </button>
@@ -406,7 +437,7 @@
                 Resultado
             </div>
 
-            <pre id="saida">Digite seu código e clique em Executar.</pre>
+            <pre id="saida">Escreva seu código e clique em Executar.</pre>
         </section>
     </section>
 </main>
@@ -416,62 +447,63 @@
 
     const exercicios = [
         {
-            titulo: "Olá, programador!",
-            nomeBotao: "1. Primeira saída",
+            titulo: "Crie sua primeira mensagem",
+            nomeBotao: "1. Primeira mensagem",
 
             descricao:
-                "Complete o programa para mostrar exatamente a mensagem: Ola, programador!",
+                "Crie um programa completo em C que mostre uma frase de sua escolha na tela. O programa será aprovado se compilar corretamente e mostrar algum texto.",
 
-            entradaExemplo: "Nenhuma",
-            saidaExemplo: "Ola, programador!",
+            pista1:
+                "Todo programa em C precisa de um ponto de início. Observe a estrutura que já apareceu no editor e descubra onde colocar sua instrução.",
 
-            pista:
-                "Use printf dentro da função main. Não esqueça as aspas e o ponto e vírgula.",
+            pista2:
+                "Para mostrar uma mensagem na tela, pesquise ou lembre como a função printf é utilizada.",
 
-            entradaInicial: "",
+            precisaEntrada: false,
 
             codigoInicial:
 `#include <stdio.h>
 
 int main(void) {
-    // Mostre: Ola, programador!
+
+    // Escreva sua primeira instrucao
 
     return 0;
 }`,
 
+            tipoTeste: "textoLivre",
+
             testes: [
                 {
-                    entrada: "",
-                    esperado: "Ola, programador!"
+                    entrada: ""
                 }
             ]
         },
 
         {
-            titulo: "Calcule o dobro",
+            titulo: "Descubra o dobro",
             nomeBotao: "2. Dobro",
 
             descricao:
-                "Leia um número inteiro e mostre somente o dobro desse número.",
+                "Crie um programa que receba um número inteiro e mostre o dobro dele. O programa precisa funcionar com qualquer número inteiro.",
 
-            entradaExemplo: "7",
-            saidaExemplo: "14",
+            pista1:
+                "Pense em três etapas: criar uma variável, receber um valor e fazer uma multiplicação.",
 
-            pista:
-                "Crie uma variável int, leia usando scanf com %d e mostre numero * 2 usando printf.",
+            pista2:
+                "Para números inteiros, você pode utilizar o tipo int. As funções scanf e printf permitem receber e mostrar valores.",
 
-            entradaInicial: "7",
+            precisaEntrada: true,
 
             codigoInicial:
 `#include <stdio.h>
 
 int main(void) {
-    int numero;
-
-    // Leia o numero e mostre o dobro
 
     return 0;
 }`,
+
+            tipoTeste: "exato",
 
             testes: [
                 {
@@ -494,28 +526,23 @@ int main(void) {
             nomeBotao: "3. Par ou ímpar",
 
             descricao:
-                "Leia um número inteiro. Mostre PAR se ele for par ou IMPAR se for ímpar.",
+                "Crie um programa que receba um número inteiro e decida se ele é par ou ímpar. Mostre somente PAR ou IMPAR como resultado.",
 
-            entradaExemplo: "9",
-            saidaExemplo: "IMPAR",
+            pista1:
+                "Um número é par quando o resto da divisão dele por 2 é igual a zero.",
 
-            pista:
-                "O operador % encontra o resto da divisão. Se numero % 2 for igual a zero, o número é par.",
+            pista2:
+                "Em C, o operador % encontra o resto da divisão. Você também precisará utilizar uma condição com if e else.",
 
-            entradaInicial: "9",
+            precisaEntrada: true,
 
             codigoInicial:
 `#include <stdio.h>
 
-int main(void) {
-    int numero;
+/* Agora construa a funcao principal
+   e o restante do programa. */`,
 
-    scanf("%d", &numero);
-
-    // Use if e else
-
-    return 0;
-}`,
+            tipoTeste: "exato",
 
             testes: [
                 {
@@ -529,6 +556,10 @@ int main(void) {
                 {
                     entrada: "0",
                     esperado: "PAR"
+                },
+                {
+                    entrada: "-5",
+                    esperado: "IMPAR"
                 }
             ]
         },
@@ -538,30 +569,19 @@ int main(void) {
             nomeBotao: "4. Média escolar",
 
             descricao:
-                "Leia duas notas e calcule a média. Mostre APROVADO para média a partir de 7, RECUPERACAO para média a partir de 5 ou REPROVADO abaixo de 5.",
+                "Construa do zero um programa que receba duas notas e calcule a média. Mostre APROVADO para média a partir de 7, RECUPERACAO para média entre 5 e 6.9 ou REPROVADO para média abaixo de 5.",
 
-            entradaExemplo: "7.0 8.0",
-            saidaExemplo: "APROVADO",
+            pista1:
+                "Primeiro receba as duas notas e calcule a média. Somente depois comece a criar as condições.",
 
-            pista:
-                "Calcule (nota1 + nota2) / 2. Depois use if, else if e else.",
+            pista2:
+                "Você pode utilizar float para as notas. Para as três possibilidades, pense em if, else if e else.",
 
-            entradaInicial: "7.0 8.0",
+            precisaEntrada: true,
 
-            codigoInicial:
-`#include <stdio.h>
+            codigoInicial: "",
 
-int main(void) {
-    float nota1, nota2, media;
-
-    scanf("%f %f", &nota1, &nota2);
-
-    media = (nota1 + nota2) / 2;
-
-    // Mostre a situacao do aluno
-
-    return 0;
-}`,
+            tipoTeste: "exato",
 
             testes: [
                 {
@@ -575,6 +595,10 @@ int main(void) {
                 {
                     entrada: "4.0 3.0",
                     esperado: "REPROVADO"
+                },
+                {
+                    entrada: "10.0 10.0",
+                    esperado: "APROVADO"
                 }
             ]
         }
@@ -599,14 +623,11 @@ int main(void) {
     const descricaoExercicio =
         document.getElementById("descricaoExercicio");
 
-    const exemploEntrada =
-        document.getElementById("exemploEntrada");
+    const pista1 =
+        document.getElementById("pista1");
 
-    const exemploSaida =
-        document.getElementById("exemploSaida");
-
-    const pistaExercicio =
-        document.getElementById("pistaExercicio");
+    const pista2 =
+        document.getElementById("pista2");
 
     const codigo =
         document.getElementById("codigo");
@@ -622,6 +643,9 @@ int main(void) {
 
     const botaoVerificar =
         document.getElementById("botaoVerificar");
+
+    const botaoLimpar =
+        document.getElementById("botaoLimpar");
 
     function montarMenu() {
         listaExercicios.innerHTML = "";
@@ -669,26 +693,36 @@ int main(void) {
         descricaoExercicio.textContent =
             exercicio.descricao;
 
-        exemploEntrada.textContent =
-            exercicio.entradaExemplo;
+        pista1.textContent =
+            exercicio.pista1;
 
-        exemploSaida.textContent =
-            exercicio.saidaExemplo;
-
-        pistaExercicio.textContent =
-            exercicio.pista;
+        pista2.textContent =
+            exercicio.pista2;
 
         codigo.value =
             codigosSalvos[indice] ??
             exercicio.codigoInicial;
 
-        entradaPrograma.value =
-            exercicio.entradaInicial;
+        entradaPrograma.value = "";
 
-        saida.textContent =
-            "Digite seu código e clique em Executar.";
+        entradaPrograma.placeholder =
+            exercicio.precisaEntrada
+                ? "Digite os dados para sua própria tentativa"
+                : "Este exercício não precisa de entrada";
+
+        entradaPrograma.disabled =
+            !exercicio.precisaEntrada;
 
         saida.className = "";
+
+        saida.textContent =
+            "Escreva seu código e clique em Executar.";
+
+        document.querySelectorAll("details").forEach(
+            detalhe => {
+                detalhe.open = false;
+            }
+        );
 
         siteIniciado = true;
 
@@ -698,6 +732,7 @@ int main(void) {
     function bloquearBotoes(bloquear) {
         botaoExecutar.disabled = bloquear;
         botaoVerificar.disabled = bloquear;
+        botaoLimpar.disabled = bloquear;
     }
 
     function normalizar(texto) {
@@ -883,7 +918,7 @@ int main(void) {
     ) {
         if (!codigoFonte.trim()) {
             throw new Error(
-                "Digite algum código antes de executar."
+                "O editor está vazio. Comece escrevendo a estrutura do programa."
             );
         }
 
@@ -915,12 +950,12 @@ int main(void) {
             )
         ) {
             return local +
-                "Faltou fechar as aspas de um texto. Toda mensagem iniciada com aspas precisa terminar com outras aspas.";
+                "Faltou fechar as aspas de um texto.";
         }
 
         if (texto.includes("undeclared")) {
             return local +
-                "Você utilizou uma variável ou função que não foi declarada. Confira se o nome foi escrito corretamente. A linguagem C diferencia letras maiúsculas e minúsculas.";
+                "Foi utilizada uma variável ou função que não foi declarada. Confira o nome e as letras maiúsculas e minúsculas.";
         }
 
         if (
@@ -929,17 +964,12 @@ int main(void) {
             )
         ) {
             return local +
-                "O programa não reconheceu uma função utilizada. Confira o nome da função e a biblioteca. printf e scanf precisam de #include <stdio.h>.";
+                "O programa não reconheceu uma função. Confira o nome dela e se a biblioteca necessária foi incluída.";
         }
 
         if (texto.includes("expected ')'")) {
             return local +
-                "Faltou fechar um parêntese ou existe algo incorreto antes dele.";
-        }
-
-        if (texto.includes("expected '}'")) {
-            return local +
-                "Faltou fechar uma chave }. Confira os blocos da função, do if e do else.";
+                "Parece que faltou fechar um parêntese.";
         }
 
         if (
@@ -948,7 +978,7 @@ int main(void) {
             )
         ) {
             return local +
-                "O código terminou antes de alguma instrução ser fechada. Confira os parênteses e as chaves.";
+                "O programa terminou antes de alguma instrução ser fechada. Confira as chaves e os parênteses.";
         }
 
         if (texto.includes("expected expression")) {
@@ -956,64 +986,9 @@ int main(void) {
                 "O compilador esperava encontrar um valor, uma variável ou um cálculo nessa parte.";
         }
 
-        if (texto.includes("too few arguments")) {
-            return local +
-                "Faltam informações dentro da função utilizada.";
-        }
-
-        if (texto.includes("too many arguments")) {
-            return local +
-                "Foram colocadas informações demais dentro da função.";
-        }
-
-        if (texto.includes("unknown type name")) {
-            return local +
-                "O tipo da variável não foi reconhecido. Confira se escreveu corretamente int, float ou char.";
-        }
-
-        if (texto.includes("redefinition of")) {
-            return local +
-                "Uma variável ou função foi declarada duas vezes com o mesmo nome.";
-        }
-
-        let traducao = texto
-            .replaceAll(
-                "fatal error:",
-                "erro grave:"
-            )
-            .replaceAll(
-                "error:",
-                "erro:"
-            )
-            .replaceAll(
-                "warning:",
-                "aviso:"
-            )
-            .replaceAll(
-                "note:",
-                "observação:"
-            )
-            .replaceAll(
-                "In function",
-                "Na função"
-            )
-            .replaceAll(
-                "expected",
-                "era esperado"
-            )
-            .replaceAll(
-                "before",
-                "antes de"
-            )
-            .replaceAll(
-                "undeclared",
-                "não declarado"
-            );
-
         return (
-            "O compilador encontrou um problema:\n\n" +
-            traducao +
-            "\n\nConfira a linha indicada e procure sinais como ;, (), {}, aspas e nomes de variáveis."
+            local +
+            "O compilador encontrou um problema nessa região do código. Confira ponto e vírgula, aspas, parênteses, chaves e nomes de variáveis."
         );
     }
 
@@ -1051,6 +1026,21 @@ int main(void) {
     }
 
     async function executarCodigo() {
+        const exercicio =
+            exercicios[exercicioAtual];
+
+        if (
+            exercicio.precisaEntrada &&
+            !entradaPrograma.value.trim()
+        ) {
+            saida.className = "erro";
+
+            saida.textContent =
+                "Digite uma entrada para testar seu programa.";
+
+            return;
+        }
+
         bloquearBotoes(true);
 
         saida.className = "";
@@ -1068,6 +1058,7 @@ int main(void) {
                     "(O programa não mostrou nenhuma saída.)";
             } else {
                 saida.className = "erro";
+
                 saida.textContent =
                     mostrarErro(resultado);
             }
@@ -1082,16 +1073,35 @@ int main(void) {
         }
     }
 
-    async function verificarSolucao() {
-        bloquearBotoes(true);
+    function testePassou(
+        exercicio,
+        teste,
+        resultado
+    ) {
+        const recebido =
+            normalizar(resultado.stdout);
 
+        if (
+            exercicio.tipoTeste ===
+            "textoLivre"
+        ) {
+            return recebido.length > 0;
+        }
+
+        return recebido ===
+            normalizar(teste.esperado);
+    }
+
+    async function verificarSolucao() {
         const exercicio =
             exercicios[exercicioAtual];
+
+        bloquearBotoes(true);
 
         saida.className = "";
 
         saida.textContent =
-            `Executando ${exercicio.testes.length} teste(s)...`;
+            "Testando o programa com valores escondidos...";
 
         try {
             for (
@@ -1103,7 +1113,7 @@ int main(void) {
                     exercicio.testes[indice];
 
                 saida.textContent =
-                    `Executando teste ${indice + 1} de ${exercicio.testes.length}...`;
+                    `Realizando teste ${indice + 1} de ${exercicio.testes.length}...`;
 
                 const resultado =
                     await compilar(
@@ -1113,37 +1123,37 @@ int main(void) {
 
                 if (resultado.status.id !== 3) {
                     saida.className = "erro";
+
                     saida.textContent =
                         mostrarErro(resultado);
+
                     return;
                 }
 
-                const recebido =
-                    normalizar(
-                        resultado.stdout
-                    );
+                if (
+                    !testePassou(
+                        exercicio,
+                        teste,
+                        resultado
+                    )
+                ) {
+                    const recebido =
+                        normalizar(
+                            resultado.stdout
+                        );
 
-                const esperado =
-                    normalizar(
-                        teste.esperado
-                    );
-
-                if (recebido !== esperado) {
                     saida.className = "erro";
 
                     saida.textContent =
 `O teste ${indice + 1} não passou.
 
-Entrada utilizada:
+Entrada utilizada pelo teste:
 ${teste.entrada || "(nenhuma)"}
 
-Resultado esperado:
-${esperado}
-
-Resultado recebido:
+Seu programa mostrou:
 ${recebido || "(nenhuma saída)"}
 
-Confira os textos, espaços, cálculos e condições.`;
+O site não mostrará a resposta correta agora. Releia o objetivo, faça o cálculo mentalmente com essa entrada e tente novamente.`;
 
                     return;
                 }
@@ -1157,7 +1167,7 @@ Confira os textos, espaços, cálculos e condições.`;
             saida.textContent =
 `✓ Todos os testes passaram!
 
-Exercício concluído com sucesso.`;
+Você resolveu o exercício sem depender de um único exemplo.`;
 
         } catch (erro) {
             saida.className = "erro";
@@ -1168,6 +1178,26 @@ Exercício concluído com sucesso.`;
         } finally {
             bloquearBotoes(false);
         }
+    }
+
+    function reiniciarExercicio() {
+        const exercicio =
+            exercicios[exercicioAtual];
+
+        codigo.value =
+            exercicio.codigoInicial;
+
+        codigosSalvos[exercicioAtual] =
+            exercicio.codigoInicial;
+
+        entradaPrograma.value = "";
+
+        saida.className = "";
+
+        saida.textContent =
+            "O exercício foi reiniciado.";
+
+        codigo.focus();
     }
 
     codigo.addEventListener(
@@ -1200,6 +1230,11 @@ Exercício concluído com sucesso.`;
     botaoVerificar.addEventListener(
         "click",
         verificarSolucao
+    );
+
+    botaoLimpar.addEventListener(
+        "click",
+        reiniciarExercicio
     );
 
     abrirExercicio(0);
